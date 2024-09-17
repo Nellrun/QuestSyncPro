@@ -28,15 +28,41 @@ local function SendMessagesWithRateLimit(messages, delay)
     sendNextMessage() -- Старт отправки сообщений
 end
 
-function QuestSyncPro:SendQuestDataToGroup()
+function QuestSyncPro:SendQuestDataToGroupPart()
     if IsInGroup() then
         local playerQuestData = self:GetPlayerQuestData()
-        local data = self:SerializeQuestData(playerQuestData)
+
+        local playerName = UnitName("player")
+        local dataToSend = {}
+        if QuestData[playerName] then
+            for _, quest in pairs(playerQuestData) do
+                if not QuestData[playerName][quest.questID] or QuestData[playerName][quest.questID].progress ~=
+                    quest.progress then
+                    dataToSend[quest.questID] = quest
+                end
+            end
+            dataToSend = {}
+        else
+            dataToSend = playerQuestData
+        end
+
+        local data = self:SerializeQuestData(dataToSend)
 
         SendMessagesWithRateLimit(data, 0.3)
 
         -- Отправляем данные другим игрокам в группе
         -- C_ChatInfo.SendAddonMessage("QuestSyncPro", serializedData, "PARTY")
+    end
+end
+
+
+function QuestSyncPro:SendQuestDataToGroup()
+    if IsInGroup() then
+        local playerQuestData = self:GetPlayerQuestData()
+
+        local data = self:SerializeQuestData(playerQuestData)
+
+        SendMessagesWithRateLimit(data, 0.3)
     end
 end
 
@@ -117,7 +143,7 @@ end
 
 function QuestSyncPro:SyncQuestData()
     -- Отправляем данные другим игрокам
-    self:SendQuestDataToGroup()
+    self:SendQuestDataToGroupPart()
 
     -- Собираем собственные данные
     local playerName = UnitName("player")
