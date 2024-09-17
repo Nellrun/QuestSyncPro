@@ -12,10 +12,10 @@ end
 function QuestSyncPro:SendQuestDataToGroup()
     if IsInGroup() then
         local playerQuestData = self:GetPlayerQuestData()
-        local serializedData = self:SerializeQuestData(playerQuestData)
+        self:SerializeQuestData(playerQuestData)
 
         -- Отправляем данные другим игрокам в группе
-        C_ChatInfo.SendAddonMessage("QuestSyncPro", serializedData, "PARTY")
+        -- C_ChatInfo.SendAddonMessage("QuestSyncPro", serializedData, "PARTY")
     end
 end
 
@@ -27,7 +27,10 @@ function QuestSyncPro:SerializeQuestData(QuestData)
         if not campaingID then
             campaingID = -1
         end
-        data = data .. quest.questName .. "#" .. quest.progress .. "#" .. quest.questID .. "#" .. campaingID .. ";"
+        data = quest.questName .. "#" .. quest.progress .. "#" .. quest.questID .. "#" .. campaingID .. ";"
+
+        -- Отправляем данные другим игрокам в группе
+        C_ChatInfo.SendAddonMessage("QuestSyncPro", data, "PARTY")
     end
     return data
 end
@@ -109,16 +112,19 @@ function QuestSyncPro:ReceiveQuestDataFromPlayer(playerName, data)
     local playerQuestData = {}
     for questString in string.gmatch(data, "([^;]+)") do
         local questName, progress, questID, campaingID = strsplit("#", questString)
-        if campaingID == 0 then
-            campaingID = nil
+        print(questName, progress, questID)
+        if questID ~= nil then
+            if campaingID == 0 then
+                campaingID = nil
+            end
+            table.insert(playerQuestData, {
+                questName = questName,
+                progress = progress,
+                questID = questID,
+                campaingID = campaingID
+            })
+            PartyPlayersQuests[questID] = true
         end
-        table.insert(playerQuestData, {
-            questName = questName,
-            progress = progress,
-            questID = questID,
-            campaingID = campaingID
-        })
-        -- PartyPlayersQuests[questID] = true
     end
 
     -- Сохраняем данные квестов для игрока

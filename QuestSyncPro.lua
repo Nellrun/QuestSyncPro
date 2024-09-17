@@ -53,7 +53,8 @@ end)
 
 function QuestSyncPro:OnEvent(event, prefix, message, channel, sender)
     if event == "CHAT_MSG_ADDON" and prefix == "QuestSyncPro" then
-        if sender ~= UnitName("player") then
+        local playerName, server = strsplit("-", sender)
+        if playerName ~= UnitName("player") then
             PartyPlayersQuests = {}
             self:ReceiveQuestDataFromPlayer(sender, message)
         end

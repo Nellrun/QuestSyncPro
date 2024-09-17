@@ -112,7 +112,7 @@ function QuestSyncPro:DrawPlayerQuests(parentFrame, yOffset, playerName, playerQ
 
     -- Отображаем каждый квест и его прогресс
     for _, quest in ipairs(playerQuestData) do
-        if not (Helpers:IsQuestFiltered(quest)) then
+        if not (Helpers:IsQuestFiltered(quest)) and quest.questID ~= nil  then
             local questText = blockFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
             questText:SetPoint("TOPLEFT", 40, blockYOffset)
             questText:SetWidth(280) -- Максимальная ширина текста (уменьшена, чтобы добавить кнопку справа)
@@ -121,21 +121,20 @@ function QuestSyncPro:DrawPlayerQuests(parentFrame, yOffset, playerName, playerQ
 
             local questStyle = "|cffFFFF00"
 
-            -- if not Helpers:IsPlayerName(playerName) then
-            --     if not Helpers:PlayerHasQuest(quest.questID) then
-            --         questStyle = "|cffFF0000"
-            --     end
-            -- end
+
+            if not Helpers:IsPlayerName(playerName) then
+                if not Helpers:PlayerHasQuest(quest.questID) then
+                    questStyle = "|cffFF0000"
+                end
+            end
 
             questText:SetText(questStyle .. quest.questName .. "|r \n" .. quest.progress)
 
             if (quest.progress == "|cff00FF00 Completed |r") then
-                -- Добавляем кнопку для обмена квестом с иконкой
                 local completeButton = CreateFrame("Button", nil, blockFrame, "UIPanelButtonTemplate")
                 completeButton:SetSize(20, 20)
                 completeButton:SetPoint("TOPRIGHT", -10, blockYOffset)
 
-                -- Устанавливаем иконку для кнопки
                 completeButton:SetNormalTexture("Interface\\Buttons\\UI-CheckBox-Check") -- Пример иконки
             end
 
