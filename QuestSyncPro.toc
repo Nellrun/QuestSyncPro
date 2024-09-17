@@ -1,0 +1,13 @@
+## Interface: 110002
+## Title: QuestSync Pro
+## Notes: Addon for synchronizing quest progress with friends.
+## Author: Nellrun
+## Version: 1.0
+## SavedVariables: QuestSyncProDB
+
+
+QuestSyncPro.lua
+ui/form.lua
+ui/ui.lua
+Sync.lua
+Helpers.lua
