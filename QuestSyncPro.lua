@@ -35,6 +35,8 @@ function QuestSyncPro:Initialize()
 
     -- Создаем кнопку в интерфейсе
     self:CreateInterfaceButton()
+
+    QuestSyncPro:SyncQuestData()
 end
 
 -- Обработчик событий

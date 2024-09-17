@@ -9,10 +9,31 @@ function QuestSyncPro:SyncWithGroup()
     end
 end
 
+-- Функция для создания паузы
+local function Sleep(seconds, callback)
+    C_Timer.After(seconds, callback)
+end
+
+local function SendMessagesWithRateLimit(messages, delay)
+    local index = 1
+
+    local function sendNextMessage()
+        if index <= #messages then
+            C_ChatInfo.SendAddonMessage("QuestSyncPro", messages[index], "PARTY")
+            index = index + 1
+            Sleep(delay, sendNextMessage) -- Задержка перед следующим сообщением
+        end
+    end
+
+    sendNextMessage() -- Старт отправки сообщений
+end
+
 function QuestSyncPro:SendQuestDataToGroup()
     if IsInGroup() then
         local playerQuestData = self:GetPlayerQuestData()
-        self:SerializeQuestData(playerQuestData)
+        local data = self:SerializeQuestData(playerQuestData)
+
+        SendMessagesWithRateLimit(data, 0.3)
 
         -- Отправляем данные другим игрокам в группе
         -- C_ChatInfo.SendAddonMessage("QuestSyncPro", serializedData, "PARTY")
@@ -21,16 +42,18 @@ end
 
 function QuestSyncPro:SerializeQuestData(QuestData)
     -- Преобразуем таблицу с данными в строку для отправки
-    local data = ""
+    local data = {}
     for _, quest in pairs(QuestData) do
         local campaingID = quest.campaingID
         if not campaingID then
             campaingID = -1
         end
-        data = quest.questName .. "#" .. quest.progress .. "#" .. quest.questID .. "#" .. campaingID .. ";"
+        local message = quest.questName .. "#" .. quest.progress .. "#" .. quest.questID .. "#" .. campaingID .. ";"
+
+        table.insert(data, message)
 
         -- Отправляем данные другим игрокам в группе
-        C_ChatInfo.SendAddonMessage("QuestSyncPro", data, "PARTY")
+        -- C_ChatInfo.SendAddonMessage("QuestSyncPro", data, "PARTY")
     end
     return data
 end
@@ -67,9 +90,6 @@ function QuestSyncPro:GetPlayerQuestData()
 end
 
 function QuestSyncPro:ReceiveQuestDataFromPlayer(playerName, data)
-    -- Преобразуем строку обратно в таблицу и сохраняем для игрока
-    local playerQuestData = {}
-
     if not QuestData[playerName] then
         QuestData[playerName] = {}
     end
