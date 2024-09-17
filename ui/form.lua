@@ -111,7 +111,7 @@ function QuestSyncPro:DrawPlayerQuests(parentFrame, yOffset, playerName, playerQ
     local blockYOffset = -30 -- Отступ внутри блока
 
     -- Отображаем каждый квест и его прогресс
-    for _, quest in ipairs(playerQuestData) do
+    for _, quest in pairs(playerQuestData) do
         if not (Helpers:IsQuestFiltered(quest)) and quest.questID ~= nil  then
             local questText = blockFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
             questText:SetPoint("TOPLEFT", 40, blockYOffset)
@@ -138,20 +138,20 @@ function QuestSyncPro:DrawPlayerQuests(parentFrame, yOffset, playerName, playerQ
                 completeButton:SetNormalTexture("Interface\\Buttons\\UI-CheckBox-Check") -- Пример иконки
             end
 
-            if C_QuestLog.IsPushableQuest(quest.questID) and not PartyPlayersQuests[quest.questID] then
-                -- Добавляем кнопку для обмена квестом с иконкой
-                local shareButton = CreateFrame("Button", nil, blockFrame, "UIPanelButtonTemplate")
-                shareButton:SetSize(20, 20)
-                shareButton:SetPoint("TOPLEFT", 10, blockYOffset)
+            -- if C_QuestLog.IsPushableQuest(quest.questID) and not PartyPlayersQuests[quest.questID] and playerName == UnitName("player") then
+            --     -- Добавляем кнопку для обмена квестом с иконкой
+            --     local shareButton = CreateFrame("Button", nil, blockFrame, "UIPanelButtonTemplate")
+            --     shareButton:SetSize(20, 20)
+            --     shareButton:SetPoint("TOPLEFT", 10, blockYOffset)
 
-                -- Устанавливаем иконку для кнопки
-                shareButton:SetNormalTexture("Interface\\FriendsFrame\\BroadcastIcon") -- Пример иконки
-                shareButton:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square") -- Подсветка при наведении
+            --     -- Устанавливаем иконку для кнопки
+            --     shareButton:SetNormalTexture("Interface\\FriendsFrame\\BroadcastIcon") -- Пример иконки
+            --     shareButton:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square") -- Подсветка при наведении
 
-                shareButton:SetScript("OnClick", function()
-                    Helpers:ShareQuest(quest.questID)
-                end)
-            end
+            --     shareButton:SetScript("OnClick", function()
+            --         Helpers:ShareQuest(quest.questID)
+            --     end)
+            -- end
 
             blockYOffset = blockYOffset - questText:GetStringHeight() - 10
         end
